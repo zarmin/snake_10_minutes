@@ -1,0 +1,119 @@
+<html>
+  <head>
+  </head>
+  <body>
+    <canvas width="400" height="400" id="cv" style="border:1px solid red;"></canvas>
+    <br>
+    <div id="s">Score: <span id="score">0</span></div>
+    <script>
+      var c = document.getElementById('cv');
+      var score = document.getElementById('score');
+
+      var snekLen = 5;
+      var snekDir = 0; // top, right, bottom, left
+      var snekReqDir = 0; // top, right, bottom, left
+      var height = 40;
+      var width = 40;
+      var size = 10;
+      var snekX = 20;
+      var snekY = 21;
+      var snekElems = [];
+
+      var apX = -1;
+      var apY = -1;
+
+      var ctx = c.getContext('2d');
+
+      function gameover() {
+          snekX = 20;
+          snekY = 21;
+          snekLen = 5;
+          snekDir = 2;
+          snekReqDir = 2;
+          snekElems = [[snekX, snekY-4],[snekX, snekY-3],[snekX, snekY-2],[snekX, snekY-1],[snekX, snekY]];
+      }
+
+      gameover();
+
+      document.onkeydown = function(e) {
+        e = e || window.event;
+        if (e.keyCode == '38') {
+            // up arrow
+            snekReqDir = 0;
+        }
+        else if (e.keyCode == '40') {
+            // down arrow
+            snekReqDir = 2;
+        }
+        else if (e.keyCode == '37') {
+           // left arrow
+            snekReqDir = 3;
+        }
+        else if (e.keyCode == '39') {
+           // right arrow
+            snekReqDir = 1;
+        }
+      };
+
+      setInterval(function() {
+        if (apX == -1) {
+          apX = Math.floor(Math.random() * width);
+          apY = Math.floor(Math.random() * height);
+        }
+
+        if ((snekDir + snekReqDir) % 2 == 1) {
+          snekDir = snekReqDir;
+        }
+        if (snekDir == 0)
+          snekY -= 1;
+        else if (snekDir == 1)
+          snekX += 1;
+        else if (snekDir == 2)
+          snekY += 1;
+        else if (snekDir == 3)
+          snekX -= 1;
+
+        if (snekX >= width || snekX < 0 || snekY >= height || snekY < 0) {
+          gameover();
+          return; 
+        }
+
+        if (snekX == apX && snekY == apY) {
+          apX = -1;
+          apY = -1;
+          snekLen += 1;
+        }
+
+        snekElems.push([snekX, snekY]);
+
+        var dupa = [];
+        for (var e of snekElems) {
+          dupa.push(e[0] + ':' + e[1]);
+        }
+        var dups = dupa.filter(function(a) {
+          return dupa.indexOf(a) !== dupa.lastIndexOf(a);
+        });
+        if (dups.length > 0) {
+          gameover();
+          return; 
+        }
+
+        if (snekElems.length > snekLen) {
+          snekElems.shift();
+        }
+
+        ctx.clearRect(0, 0, 400, 400);
+        ctx.fillStyle = 'green';
+        for (var e of snekElems) {
+          ctx.fillRect(e[0]*10, e[1]*10, 10, 10);
+        }
+        if (apX != -1) {
+          ctx.fillStyle = 'orange';
+          ctx.fillRect(apX*10, apY*10, 10, 10);
+        }
+
+        score.innerHTML = snekLen - 5;
+      }, 200);
+    </script>
+  </body>
+</html>
